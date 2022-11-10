@@ -39,7 +39,7 @@ contract TicketsNFT is ERC721URIStorage{
             maxTicketSupply = _maxSupply;
             admin = payable(msg.sender);
             venue = payable(_venueAddress);
-            venue = payable(_bandAddress);
+            Band = payable(_bandAddress);
             resaleFee = _resaleFee;
     }
 

@@ -9,19 +9,24 @@ describe("Tickets NFT Contract", () =>{
         deployer = accounts[0]
         user1 =accounts[1]
         user2 = accounts[2]
-        venueAddress = accounts[20]
-        bandAddress = accounts[19]
+        venueAddress = accounts[10]
+        bandAddress = accounts[9]
 
         const nftContractFactory = await ethers.getContractFactory("TicketsNFT")
         TicketsNFT = await nftContractFactory.deploy("ACDC", "BIB", 25000, venueAddress.address, bandAddress.address, 10 )
         await TicketsNFT.deployed()
 
-        console.log(`contract deployed to ${TicketsNFT.address}`)
 
 
     })
-    it("checks the band and tour name", async () =>{
+    it("checks the admin / band name / initials", async () =>{
         expect(await TicketsNFT.admin()).to.equal(deployer.address)
+        expect(await TicketsNFT.bandName()).to.equal("ACDC")
+        expect(await TicketsNFT.TourNameInitials()).to.equal("BIB")
 
+    })
+    it("checks the band and venue address", async () =>{
+        expect(await TicketsNFT.venue()).to.equal(venueAddress.address)
+        expect(await TicketsNFT.Band()).to.equal(bandAddress.address)
     })
 })
