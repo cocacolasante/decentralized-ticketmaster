@@ -19,6 +19,8 @@ contract CreateShow{
         address ticketContract;
     }
 
+    event ShowCreated(address band, address venue, address ticketContract);
+
     constructor(){
         admin = payable(msg.sender);
     }
@@ -39,8 +41,11 @@ contract CreateShow{
             allContracts[showCount] = newShowTickets;
 
             Show memory newShow = Show(bandAddress, venueAddress, address(newShowTickets));
+            newShowTickets.changeAdmin(msg.sender);
 
             allShows[showCount] = newShow;
+
+            emit ShowCreated(bandAddress, venueAddress, address(newShowTickets));
 
         }
     

@@ -75,6 +75,10 @@ contract DegenTickets is ERC1155 {
 
     }
 
+    function changeAdmin(address newAdmin) public onlyAdmin {
+        admin = newAdmin;
+    }
+
 
 
     // The following functions are overrides required by Solidity.
