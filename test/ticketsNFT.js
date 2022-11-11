@@ -13,9 +13,10 @@ describe("Tickets NFT Contract", () =>{
         bandAddress = accounts[9]
 
         const nftContractFactory = await ethers.getContractFactory("TicketsNFT")
-        TicketsNFT = await nftContractFactory.deploy("ACDC", "BIB", 25000, venueAddress.address, bandAddress.address, 10 )
+        TicketsNFT = await nftContractFactory.deploy("ACDC", "BIB", 25000, 100000, venueAddress.address, bandAddress.address, 10 )
         await TicketsNFT.deployed()
 
+        console.log(TicketsNFT.address)
 
 
     })
