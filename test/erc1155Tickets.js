@@ -91,7 +91,7 @@ describe("ERC1155 Ticket Contract", () =>{
             CreateShowContract = await showContractFactory.deploy()
             await CreateShowContract.deployed()
 
-            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500)
+            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, "november 24")
 
             newShowTickets = await CreateShowContract.allContracts(1)
 
@@ -107,7 +107,7 @@ describe("ERC1155 Ticket Contract", () =>{
 
         })
         it("checks the event was emitted", async () =>{
-            expect(await CreateShowContract.connect(user2).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500)).to.emit("DegenTickets", "ShowCreated")
+            expect(await CreateShowContract.connect(user2).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, "12/25")).to.emit("DegenTickets", "ShowCreated")
         })
         
     })
