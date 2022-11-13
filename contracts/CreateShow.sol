@@ -14,13 +14,18 @@ contract CreateShow{
     mapping(uint=>Show) public allShows;
     mapping(uint => DegenTickets) public allContracts;
 
+
     struct Show{
         address band;
         address venue;
-        address ticketContract; 
+        DegenTickets ticketContract; 
+        TicketEscrow escrowContract;
+        bool showCompleted;
     }
 
     event ShowCreated(address band, address venue, address ticketContract);
+
+    event ShowCompleted(address band, address Venue, address ticketContract);
 
     constructor(){
         admin = payable(msg.sender);
@@ -46,7 +51,7 @@ contract CreateShow{
 
             newEscrowContract.setTicketContract(address(newShowTickets));
 
-            Show memory newShow = Show(bandAddress, venueAddress, address(newShowTickets));
+            Show memory newShow = Show(bandAddress, venueAddress, newShowTickets, newEscrowContract, false);
             newShowTickets.setDate(date);
 
             // should i keep this contract as admin of new ticket contracts?
@@ -59,13 +64,29 @@ contract CreateShow{
         }
     
 
+
+    function payForShow(uint showNumber) public payable{
+        Show storage currentShow = allShows[showNumber];
+        require(msg.sender == currentShow.band || msg.sender == currentShow.venue || msg.sender == admin, "Not band, venue or admin" );
+
+        currentShow.escrowContract.releaseFunds();
+
+        currentShow.ticketContract.payBandAndVenue();
+
+        currentShow.showCompleted = true;
+        
+        emit ShowCompleted(currentShow.band, currentShow.venue, address(currentShow.ticketContract) );
+
+
+    }
+
     function cancelShow(uint showNumber) public payable {
-        DegenTickets currentContract = allContracts[showNumber];
         Show storage currentShow = allShows[showNumber];
         require(msg.sender == currentShow.band || msg.sender == currentShow.venue, "Not band or venue" );
 
 
     }
+
     
     
     

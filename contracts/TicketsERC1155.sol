@@ -111,6 +111,7 @@ contract DegenTickets is ERC1155 {
 
     function payBandAndVenue() external payable onlyAdmin{
         uint bandAmount = (address(escrowContract).balance / bandTicketSalesPercent) * 100;
+        
 
         payable(BandAddress).transfer(bandAmount);
         payable(VenueAddress).transfer(msg.value - bandAmount);
