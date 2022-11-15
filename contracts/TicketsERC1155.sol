@@ -37,6 +37,9 @@ contract DegenTickets is ERC1155 {
         _;
     }
 
+    receive() external payable{}
+
+
     // declaring amounts in constructor for price, percentage to band, band address, venue address, max supply
     constructor(
             string memory tokenUri, 
@@ -109,12 +112,17 @@ contract DegenTickets is ERC1155 {
 
     }
 
-    function payBandAndVenue() external payable onlyAdmin{
-        uint bandAmount = (address(escrowContract).balance / bandTicketSalesPercent) * 100;
-        
+    // add back     amount = (amount - ((amount * fee) / 1000000));
 
+
+    function payBandAndVenue() public payable onlyAdmin{
+        uint bandAmount = (address(this).balance / bandTicketSalesPercent );
+
+
+        
+        // uint venueAmount = (address(this).balance - bandAmount);
         payable(BandAddress).transfer(bandAmount);
-        payable(VenueAddress).transfer(msg.value - bandAmount);
+        payable(VenueAddress).transfer((address(this).balance));
 
     }
 

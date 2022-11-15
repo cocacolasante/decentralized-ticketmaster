@@ -1,13 +1,11 @@
-# Sample Hardhat Project
+To Do
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+test:
+ALL OF ESCROW CONTRACT
+create show contract
+    payforshow
+    cancel show
+ticket contract:
+    buy escrow tickets
+    pay band and venue
 
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js
-```

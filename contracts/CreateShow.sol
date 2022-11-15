@@ -27,6 +27,9 @@ contract CreateShow{
 
     event ShowCompleted(address band, address Venue, address ticketContract);
 
+    receive() external payable{}
+
+
     constructor(){
         admin = payable(msg.sender);
     }
@@ -55,7 +58,6 @@ contract CreateShow{
             newShowTickets.setDate(date);
 
             // should i keep this contract as admin of new ticket contracts?
-            newShowTickets.changeAdmin(msg.sender);
 
             allShows[showCount] = newShow;
 
