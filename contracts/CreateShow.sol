@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-import "hardhat/console.sol";
 
 import "./TicketsERC1155.sol";
 import "./TicketEscrow.sol";
@@ -27,8 +26,9 @@ contract CreateShow{
 
     event ShowCompleted(address band, address Venue, address ticketContract);
 
-    receive() external payable{}
 
+
+    receive() external payable{}
 
     constructor(){
         admin = payable(msg.sender);
@@ -64,12 +64,14 @@ contract CreateShow{
             emit ShowCreated(bandAddress, venueAddress, address(newShowTickets));
 
         }
+
+
     
 
 
-    function payForShow(uint showNumber) public payable{
+    function payForShow(uint showNumber) public payable {
         Show storage currentShow = allShows[showNumber];
-        require(msg.sender == currentShow.band || msg.sender == currentShow.venue || msg.sender == admin, "Not band, venue or admin" );
+        require(msg.sender == currentShow.venue || msg.sender == admin, "Not venue or admin" );
 
         currentShow.escrowContract.releaseFunds();
 
@@ -84,10 +86,14 @@ contract CreateShow{
 
     function cancelShow(uint showNumber) public payable {
         Show storage currentShow = allShows[showNumber];
-        require(msg.sender == currentShow.band || msg.sender == currentShow.venue, "Not band or venue" );
+        require(msg.sender == currentShow.venue || msg.sender == admin, "Not venue or admin" );
+        
 
 
     }
+
+
+
 
     
     

@@ -20,12 +20,13 @@ contract DegenTickets is ERC1155 {
     address public VenueAddress;
 
     uint public bandTicketSalesPercent;
-
     string public date;
 
     uint public ticketPrice;
 
     bool public showCanceled;
+
+    uint public maxTixPerWallet = 8;
 
     modifier onlyAdmin {
         require(msg.sender == admin, "only admin");
@@ -34,6 +35,10 @@ contract DegenTickets is ERC1155 {
 
     modifier notCancelled {
         require(showCanceled == false, "show was cancelled");
+        _;
+    }
+    modifier underMaxTix(uint amount) {
+        require(balanceOf(msg.sender, 1) + amount <= maxTixPerWallet, "max tickets purchased");
         _;
     }
 
@@ -65,35 +70,12 @@ contract DegenTickets is ERC1155 {
     }
 
     // amount used to for amount of tickets purchased
-    // id will always be 1 for this contract as this one supports one ticket type
-    function buyTickets(uint256 amount)
-        public
-        payable
-        notCancelled
-    {
-        require(msg.value >= ticketPrice, "Pay required minimum");
-        require(maxSupply >  ticketCount + amount, "Not enouugh tickets left or sold out");
 
-        // declaring id as 1 for metadata uri purposes 
-        uint256 id = 1;
-        // declaring data to minimize inputs
-        bytes memory data;
-
-        uint sendToBand = (msg.value * bandTicketSalesPercent) / 100;
-
-        payable(BandAddress).transfer(sendToBand);
-        payable(VenueAddress).transfer(msg.value - sendToBand);
-
-        _mint(msg.sender, id, amount, data);
-
-        // adding new ticket purchases to total ticket count
-        ticketCount += amount;
-
-    }
 
     // buy tickets function to send funds to escrow contract
 
-    function buyEscrowTickets(uint amount)public payable notCancelled{
+    // id will always be 1 for this contract as this one supports one ticket type
+    function buyEscrowTickets(uint amount)public payable notCancelled underMaxTix(amount){
         require(msg.value >= ticketPrice, "Pay required minimum");
         require(maxSupply >  ticketCount + amount, "Not enouugh tickets left or sold out");
 
@@ -115,7 +97,7 @@ contract DegenTickets is ERC1155 {
     // add back     amount = (amount - ((amount * fee) / 1000000));
 
 
-    function payBandAndVenue() public payable onlyAdmin{
+    function payBandAndVenue() external payable onlyAdmin{
         uint bandAmount = (address(this).balance / bandTicketSalesPercent );
 
 
@@ -149,5 +131,10 @@ contract DegenTickets is ERC1155 {
 
     function cancelShow() external onlyAdmin{
         showCanceled = true;
+    }
+
+
+    function setMaxTicketPerWallet(uint newLimit) public onlyAdmin {
+        maxTixPerWallet = newLimit;
     }
 }

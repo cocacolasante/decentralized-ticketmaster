@@ -65,7 +65,9 @@ describe("ERC1155 Ticket Contract", () =>{
             venueInitialBalance = BigInt(venueInitialBalance)
 
 
-            await TicketContract.connect(user1).buyTickets(1, {value: 100})
+            // await TicketContract.connect(user1).buyTickets(1, {value: 100})
+            await TicketContract.connect(user1).buyEscrowTickets(1, {value: 100})
+
         })
         it("checks the ticket count", async () =>{
             expect(await TicketContract.ticketCount()).to.equal(1)
@@ -73,21 +75,14 @@ describe("ERC1155 Ticket Contract", () =>{
         it("checks the owners address tickets were minted", async () =>{
             expect(await TicketContract.balanceOf(user1.address, 1)).to.equal(1);
         })
-        it("checks the funds were transfered to band", async () =>{
-           
-            let bandAferBalance = await ethers.provider.getBalance(BandAddress.address)
-            // eslint-disable-next-line no-undef
-            bandAferBalance = BigInt(bandAferBalance)
-            // eslint-disable-next-line no-undef
-            expect(bandAferBalance).to.equal(bandInitialBalance + BigInt(10))
+        it("checks the balance of the escrow contract", async () =>{
+            expect(await ethers.provider.getBalance(EscrowContract.address)).to.equal(100)
         })
-        it("checks the funds were sent to the venue", async () =>{
-            let venueAfterBalance = await ethers.provider.getBalance(VenueAddress.address)
-            // eslint-disable-next-line no-undef
-            venueAfterBalance = BigInt(venueAfterBalance)
-            // eslint-disable-next-line no-undef
-            expect(venueAfterBalance).to.equal(venueInitialBalance + BigInt(90))
+        it("checks users can buy up to the max tickets per wallet", async () =>{
+            await expect(TicketContract.connect(user3).buyEscrowTickets(9, {value: 400})).to.be.reverted
+
         })
+
     })
     describe("Create Show Contract", () =>{
         let CreateShowContract, newShowTickets, newShowTixContract
@@ -115,6 +110,7 @@ describe("ERC1155 Ticket Contract", () =>{
         it("checks the event was emitted", async () =>{
             expect(await CreateShowContract.connect(user2).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, "12/25")).to.emit("DegenTickets", "ShowCreated")
         })
+        
         
     })
     describe("Ticket Escrow contract deployment with create show contract", () =>{
@@ -184,15 +180,16 @@ describe("ERC1155 Ticket Contract", () =>{
             expect(await ethers.provider.getBalance(newShowTixContract.address)).to.equal(0)
 
             // console.log("Band balance", (await ethers.provider.getBalance(BandAddress.address)).toString())
-            expect((await ethers.provider.getBalance(BandAddress.address)).toString()).to.equal("10000100000000000000040")
+            expect((await ethers.provider.getBalance(BandAddress.address)).toString()).to.equal("10000100000000000000000")
 
 
             // console.log("Venue Balance", (await ethers.provider.getBalance(VenueAddress.address)).toString())
-            expect((await ethers.provider.getBalance(VenueAddress.address)).toString()).to.equal("10000900000000000000360")
+            expect((await ethers.provider.getBalance(VenueAddress.address)).toString()).to.equal("10000900000000000000000")
             
             
 
         })
+
         
     })
 })
