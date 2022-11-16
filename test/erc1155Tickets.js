@@ -218,7 +218,6 @@ describe("ERC1155 Ticket Contract", () =>{
                 
                 await CreateShowContract.connect(deployer).cancelShow(1)
                 
-                await newShowTixContract.connect(deployer).sendRefund()
                 // eslint-disable-next-line no-undef
                 expect(await ethers.provider.getBalance(user2.address)).to.equal(user2Balance + BigInt(200))
             })

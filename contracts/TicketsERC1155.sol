@@ -2,7 +2,6 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 import "hardhat/console.sol";
@@ -43,7 +42,7 @@ contract DegenTickets is ERC1155 {
         _;
     }
     modifier underMaxTix(uint amount) {
-        require(balanceOf(msg.sender, 1) + amount <= maxTixPerWallet, "max tickets purchased");
+        require(balanceOf(msg.sender, 1) + amount <= maxTixPerWallet);
         _;
     }
 
@@ -80,7 +79,6 @@ contract DegenTickets is ERC1155 {
     // id will always be 1 for this contract as this one supports one ticket type
     function buyEscrowTickets(uint amount) public payable notCancelled underMaxTix(amount){
         require(msg.value >= ticketPrice, "Pay for tix");
-        require(maxSupply >  ticketCount + amount, "No tickets left");
 
         // declaring id as 1 for metadata uri purposes 
         uint256 id = 1;

@@ -27,6 +27,7 @@ contract CreateShow{
 
     event ShowCompleted(address band, address Venue, address ticketContract);
 
+    event ShowCancelled(address band, address venue, address ticketContract);
 
 
     receive() external payable{}
@@ -91,7 +92,10 @@ contract CreateShow{
 
         currentShow.showCancelled = true;
         currentShow.escrowContract.releaseFunds();
+        currentShow.ticketContract.sendRefund();
+        currentShow.ticketContract.cancelShow();
 
+        emit ShowCancelled(currentShow.band, currentShow.venue, address(currentShow.ticketContract));
 
     }
 
