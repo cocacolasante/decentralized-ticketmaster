@@ -28,6 +28,11 @@ contract DegenTickets is ERC1155 {
 
     uint public maxTixPerWallet = 8;
 
+    address[] public ticketOwners;
+
+
+
+
     modifier onlyAdmin {
         require(msg.sender == admin, "only admin");
         _;
@@ -70,14 +75,12 @@ contract DegenTickets is ERC1155 {
     }
 
     // amount used to for amount of tickets purchased
-
-
     // buy tickets function to send funds to escrow contract
 
     // id will always be 1 for this contract as this one supports one ticket type
-    function buyEscrowTickets(uint amount)public payable notCancelled underMaxTix(amount){
-        require(msg.value >= ticketPrice, "Pay required minimum");
-        require(maxSupply >  ticketCount + amount, "Not enouugh tickets left or sold out");
+    function buyEscrowTickets(uint amount) public payable notCancelled underMaxTix(amount){
+        require(msg.value >= ticketPrice, "Pay for tix");
+        require(maxSupply >  ticketCount + amount, "No tickets left");
 
         // declaring id as 1 for metadata uri purposes 
         uint256 id = 1;
@@ -88,6 +91,9 @@ contract DegenTickets is ERC1155 {
 
 
         _mint(msg.sender, id, amount, data);
+        
+        ticketOwners.push(msg.sender);
+ 
 
         // adding new ticket purchases to total ticket count
         ticketCount += amount;
@@ -106,11 +112,6 @@ contract DegenTickets is ERC1155 {
         payable(BandAddress).transfer(bandAmount);
         payable(VenueAddress).transfer((address(this).balance));
 
-    }
-
-
-    function changeAdmin(address newAdmin) public onlyAdmin notCancelled{
-        admin = newAdmin;
     }
 
 
@@ -137,4 +138,30 @@ contract DegenTickets is ERC1155 {
     function setMaxTicketPerWallet(uint newLimit) public onlyAdmin {
         maxTixPerWallet = newLimit;
     }
+
+    function _getAllOwner() public view returns(address[] memory){
+        address[] memory currentOwners = new address[](ticketOwners.length);
+        uint counterIndex;
+        for(uint i = 0; i < ticketOwners.length;){
+            if(balanceOf(ticketOwners[i], 1) > 0){
+                currentOwners[counterIndex] = ticketOwners[i];
+                counterIndex++;
+            }
+         i++;
+        }
+        return currentOwners;
+    }
+
+
+
+
+
+
+    // function getRefund() public {
+    //     for(uint i = 0; i < ticketCount;){
+    //         if(balanceOf(ticketOwners[i], 1) > 0){
+    //             payable(ticketOwners[i]).transfer(ticketPrice);
+    //         }
+    //     }
+    // }
 }

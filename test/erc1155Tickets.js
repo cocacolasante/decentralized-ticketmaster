@@ -189,6 +189,28 @@ describe("ERC1155 Ticket Contract", () =>{
             
 
         })
+        it("checks the buy ticket function from new ticket contract", async () =>{
+            await newShowTixContract.connect(user3).buyEscrowTickets(1, {value: 100})
+            expect(await newShowTixContract.balanceOf(user3.address, 1)).to.equal(1)
+            
+        })
+        describe("refund functions and helpers", () =>{
+            beforeEach(async () =>{
+                await newShowTixContract.connect(user3).buyEscrowTickets(2, {value: 600})
+
+                await newShowTixContract.connect(user2).buyEscrowTickets(2, {value: 200})
+                await newShowTixContract.connect(BandAddress).buyEscrowTickets(2, {value: 200})
+            })
+            it("checks the current ticket holders function", async () =>{
+                const ownerList = (await newShowTixContract._getAllOwner())
+                expect(ownerList[0]).to.equal(user3.address)
+                expect(ownerList[1]).to.equal(user2.address)
+                expect(ownerList[2]).to.equal(BandAddress.address)
+
+                
+
+            })
+        })
 
         
     })
