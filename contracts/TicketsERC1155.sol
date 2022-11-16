@@ -152,6 +152,17 @@ contract DegenTickets is ERC1155 {
         return currentOwners;
     }
 
+    function sendRefund() public {
+        address[] memory currentOwners = _getAllOwner();
+
+        for(uint i; i < currentOwners.length; i++){
+            uint ticketsOwned = balanceOf(currentOwners[i], 1);
+            uint amountToSend = ticketsOwned * ticketPrice;
+
+            payable(currentOwners[i]).transfer(amountToSend);
+        }
+    }
+
 
 
 

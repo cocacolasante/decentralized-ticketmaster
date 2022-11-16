@@ -20,6 +20,7 @@ contract CreateShow{
         DegenTickets ticketContract; 
         TicketEscrow escrowContract;
         bool showCompleted;
+        bool showCancelled;
     }
 
     event ShowCreated(address band, address venue, address ticketContract);
@@ -54,7 +55,7 @@ contract CreateShow{
 
             newEscrowContract.setTicketContract(address(newShowTickets));
 
-            Show memory newShow = Show(bandAddress, venueAddress, newShowTickets, newEscrowContract, false);
+            Show memory newShow = Show(bandAddress, venueAddress, newShowTickets, newEscrowContract, false, false);
             newShowTickets.setDate(date);
 
             // should i keep this contract as admin of new ticket contracts?
@@ -71,7 +72,7 @@ contract CreateShow{
 
     function payForShow(uint showNumber) public payable {
         Show storage currentShow = allShows[showNumber];
-        require(msg.sender == currentShow.venue || msg.sender == admin, "Not venue or admin" );
+        require(msg.sender == currentShow.venue || msg.sender == admin);
 
         currentShow.escrowContract.releaseFunds();
 
@@ -86,8 +87,10 @@ contract CreateShow{
 
     function cancelShow(uint showNumber) public payable {
         Show storage currentShow = allShows[showNumber];
-        require(msg.sender == currentShow.venue || msg.sender == admin, "Not venue or admin" );
-        
+        require(msg.sender == currentShow.venue || msg.sender == admin);
+
+        currentShow.showCancelled = true;
+        currentShow.escrowContract.releaseFunds();
 
 
     }

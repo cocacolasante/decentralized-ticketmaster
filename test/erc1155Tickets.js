@@ -210,6 +210,18 @@ describe("ERC1155 Ticket Contract", () =>{
                 
 
             })
+            it("checks the send refund function", async () =>{
+                let user2Balance = await ethers.provider.getBalance(user2.address)
+                // eslint-disable-next-line no-undef
+                user2Balance = BigInt(user2Balance)
+
+                
+                await CreateShowContract.connect(deployer).cancelShow(1)
+                
+                await newShowTixContract.connect(deployer).sendRefund()
+                // eslint-disable-next-line no-undef
+                expect(await ethers.provider.getBalance(user2.address)).to.equal(user2Balance + BigInt(200))
+            })
         })
 
         
