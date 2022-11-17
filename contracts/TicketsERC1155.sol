@@ -2,7 +2,6 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 import "hardhat/console.sol";
 
@@ -31,14 +30,13 @@ contract DegenTickets is ERC1155 {
 
 
 
-
     modifier onlyAdmin {
-        require(msg.sender == admin, "only admin");
+        require(msg.sender == admin, "only ad");
         _;
     }
 
     modifier notCancelled {
-        require(showCanceled == false, "show was cancelled");
+        require(showCanceled == false, "cancelled");
         _;
     }
     modifier underMaxTix(uint amount) {
@@ -69,9 +67,6 @@ contract DegenTickets is ERC1155 {
 
     }
 
-    function setURI(string memory newuri) public onlyAdmin notCancelled {
-        _setURI(newuri);
-    }
 
     // amount used to for amount of tickets purchased
     // buy tickets function to send funds to escrow contract
@@ -103,8 +98,6 @@ contract DegenTickets is ERC1155 {
 
     function payBandAndVenue() external payable onlyAdmin{
         uint bandAmount = (address(this).balance / bandTicketSalesPercent );
-
-
         
         // uint venueAmount = (address(this).balance - bandAmount);
         payable(BandAddress).transfer(bandAmount);
@@ -150,6 +143,7 @@ contract DegenTickets is ERC1155 {
         return currentOwners;
     }
 
+
     function sendRefund() public {
         address[] memory currentOwners = _getAllOwner();
 
@@ -162,15 +156,4 @@ contract DegenTickets is ERC1155 {
     }
 
 
-
-
-
-
-    // function getRefund() public {
-    //     for(uint i = 0; i < ticketCount;){
-    //         if(balanceOf(ticketOwners[i], 1) > 0){
-    //             payable(ticketOwners[i]).transfer(ticketPrice);
-    //         }
-    //     }
-    // }
 }
