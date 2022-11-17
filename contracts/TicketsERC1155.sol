@@ -93,7 +93,6 @@ contract DegenTickets is ERC1155 {
 
     }
 
-    // add back     amount = (amount - ((amount * fee) / 1000000));
 
 
     function payBandAndVenue() external payable onlyAdmin{
