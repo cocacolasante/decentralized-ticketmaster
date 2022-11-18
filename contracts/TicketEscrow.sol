@@ -33,6 +33,7 @@ contract TicketEscrow{
     function setTicketContract(address _tixContract) external onlyAdmin{
         ticketContract = _tixContract;
     }
+    
     function setShowContract(address _showContract) external onlyAdmin{
         createShowContract = _showContract;
     }

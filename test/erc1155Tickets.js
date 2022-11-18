@@ -2,6 +2,7 @@ const { expect } = require("chai");
 const {ethers} = require("hardhat")
 const degenTicketAbi = require("./contract-abis/degenTicketsabi.json")
 const escrowAbi = require("./contract-abis/escrowContract.json")
+const hre = require("hardhat");
 const {moveBlocks} = require("./testingutils/moveblock")
 const {moveTime} = require("./testingutils/move-time")
 
@@ -204,8 +205,8 @@ describe("ERC1155 Ticket Contract", () =>{
             const currentShow = await CreateShowContract.allShows(1)
             expect(currentShow.date).to.equal(86400 + 86400 + 86400)
         })
-        it("check the event was emitted")
-        
+        it("check the reschedule event was emitted")
+
         describe("refund functions and helpers", () =>{
             beforeEach(async () =>{
                 await newShowTixContract.connect(user3).buyEscrowTickets(2, {value: 600})
@@ -292,6 +293,12 @@ describe("ERC1155 Ticket Contract", () =>{
 
                     // eslint-disable-next-line no-undef
                     expect(await ethers.provider.getBalance(user3.address)).to.equal(initialBalance + BigInt(180))
+                })
+                it("checks the ticket was transferred to new buyer", async ()=>{
+                    await newShowTixContract.connect(user3).setApprovalForAll(MarketplaceContract.address, true)
+                    await MarketplaceContract.connect(user3).listTickets(2, 100, newShowTixContract.address, BandAddress.address )
+                    await MarketplaceContract.connect(user4).buyTickets(2, newShowTixContract.address, user3.address, {value: 200});
+                    expect(await newShowTixContract.balanceOf(user4.address, 1)).to.equal(2)                    
                 })
             })
         })
