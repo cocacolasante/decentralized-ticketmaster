@@ -2,6 +2,8 @@ const { expect } = require("chai");
 const {ethers} = require("hardhat")
 const degenTicketAbi = require("./contract-abis/degenTicketsabi.json")
 const escrowAbi = require("./contract-abis/escrowContract.json")
+const {moveBlocks} = require("./testingutils/moveblock")
+const {moveTime} = require("./testingutils/move-time")
 
 describe("ERC1155 Ticket Contract", () =>{
     let TicketContract, deployer, user1, user2, user3, user4, BandAddress, VenueAddress, EscrowContract
@@ -92,7 +94,7 @@ describe("ERC1155 Ticket Contract", () =>{
             CreateShowContract = await showContractFactory.deploy()
             await CreateShowContract.deployed()
 
-            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 120)
+            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 1)
 
             newShowTickets = await CreateShowContract.allContracts(1)
 
@@ -109,8 +111,9 @@ describe("ERC1155 Ticket Contract", () =>{
 
         })
         it("checks the event was emitted", async () =>{
-            expect( await CreateShowContract.connect(user2).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 120)).to.emit("DegenBeats", "ShowCreated")
+            expect( await CreateShowContract.connect(user2).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 1)).to.emit("DegenBeats", "ShowCreated")
         })
+
         
         
     })
@@ -121,7 +124,7 @@ describe("ERC1155 Ticket Contract", () =>{
             CreateShowContract = await showContractFactory.deploy()
             await CreateShowContract.deployed()
 
-            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 120)
+            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 1)
 
             let newShowTix = await CreateShowContract.allShows(1)
             newShowTickets = newShowTix.ticketContract
@@ -172,7 +175,8 @@ describe("ERC1155 Ticket Contract", () =>{
             console.log("Create show address", await CreateShowContract.address)
             console.log("--------")
 
-            
+            await moveBlocks(2)
+            await moveTime(172800)
 
             await CreateShowContract.connect(deployer).payForShow(1)
 

@@ -30,6 +30,8 @@ contract CreateShow{
 
     event ShowCancelled(address band, address venue, address ticketContract);
 
+ 
+
 
     receive() external payable{}
 
@@ -44,6 +46,7 @@ contract CreateShow{
             address bandAddress,
             address venueAddress,
             uint maxTickets, 
+            // enter date in days
             uint date
         ) public {
 
@@ -56,8 +59,10 @@ contract CreateShow{
             allContracts[showCount] = newShowTickets;
 
             newEscrowContract.setTicketContract(address(newShowTickets));
+            // 43200 is 24 hours after the date to ensure band plans 
+            uint convertedDate = date * 24 * 60 *60 + 86400 +block.timestamp;
 
-            Show memory newShow = Show(bandAddress, venueAddress, newShowTickets, newEscrowContract, false, false, date);
+            Show memory newShow = Show(bandAddress, venueAddress, newShowTickets, newEscrowContract, false, false, convertedDate);
 
             // should i keep this contract as admin of new ticket contracts?
 
@@ -73,8 +78,8 @@ contract CreateShow{
 
     function payForShow(uint showNumber) public payable {
         Show storage currentShow = allShows[showNumber];
-        require(block.timestamp >= currentShow.date);
         require(msg.sender == currentShow.venue || msg.sender == admin);
+        require(block.timestamp >= currentShow.date, "show hasnt happened yet");
 
         currentShow.escrowContract.releaseFunds();
 
@@ -100,12 +105,14 @@ contract CreateShow{
 
     }
 
-    // function rescheduleShow(uint showNumber) public {
-    //     Show memory currentShow = allShows[showNumber];
-    //     require(msg.sender == currentShow.venue || msg.sender == admin);
+    function rescheduleShow(uint showNumber, uint newDate) public {
+        Show storage currentShow = allShows[showNumber];
+        require(msg.sender == currentShow.venue || msg.sender == admin);
 
+        uint convertedDate = newDate * 24 * 60 *60 + 86400;
+        currentShow.date = convertedDate;
         
-    // }
+    }
 
 
     
