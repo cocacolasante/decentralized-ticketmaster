@@ -30,6 +30,8 @@ contract CreateShow{
 
     event ShowCancelled(address band, address venue, address ticketContract);
 
+    event ShowRescheduled(address band, address venue, address ticketContract, uint newDate);
+
  
 
 
@@ -109,10 +111,13 @@ contract CreateShow{
         Show storage currentShow = allShows[showNumber];
         require(msg.sender == currentShow.venue || msg.sender == admin);
 
-        uint convertedDate = newDate * 24 * 60 *60 + 86400;
+        uint convertedDate = newDate * 24 * 60 * 60 + 86400;
         currentShow.date = convertedDate;
-        
+
+        emit ShowRescheduled(currentShow.band, currentShow.venue, address(currentShow.ticketContract), newDate );
     }
+
+    
 
 
     

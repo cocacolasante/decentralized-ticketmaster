@@ -111,7 +111,7 @@ describe("ERC1155 Ticket Contract", () =>{
 
         })
         it("checks the event was emitted", async () =>{
-            expect( await CreateShowContract.connect(user2).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 1)).to.emit("DegenBeats", "ShowCreated")
+            expect( await CreateShowContract.connect(user2).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 1)).to.emit("CreateShow", "ShowCreated")
         })
 
         
@@ -199,6 +199,13 @@ describe("ERC1155 Ticket Contract", () =>{
             expect(await newShowTixContract.balanceOf(user3.address, 1)).to.equal(1)
             
         })
+        it("checks the reschedule show function", async () =>{
+            await CreateShowContract.connect(VenueAddress).rescheduleShow(1, 2)
+            const currentShow = await CreateShowContract.allShows(1)
+            expect(currentShow.date).to.equal(86400 + 86400 + 86400)
+        })
+        it("check the event was emitted")
+        
         describe("refund functions and helpers", () =>{
             beforeEach(async () =>{
                 await newShowTixContract.connect(user3).buyEscrowTickets(2, {value: 600})
