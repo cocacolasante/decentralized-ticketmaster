@@ -4,7 +4,7 @@ const degenTicketAbi = require("./contract-abis/degenTicketsabi.json")
 const escrowAbi = require("./contract-abis/escrowContract.json")
 
 describe("ERC1155 Ticket Contract", () =>{
-    let TicketContract, deployer, user1, user2, user3, BandAddress, VenueAddress, EscrowContract
+    let TicketContract, deployer, user1, user2, user3, user4, BandAddress, VenueAddress, EscrowContract
 
     const SAMPLEURI = "SAMPLEURI"
 
@@ -15,6 +15,7 @@ describe("ERC1155 Ticket Contract", () =>{
         user1 = accounts[1]
         user2 = accounts[2]
         user3 = accounts[3]
+        user4 = accounts[4]
 
         VenueAddress = accounts[10]
         BandAddress = accounts[9]
@@ -91,7 +92,7 @@ describe("ERC1155 Ticket Contract", () =>{
             CreateShowContract = await showContractFactory.deploy()
             await CreateShowContract.deployed()
 
-            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, "november 24")
+            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 120)
 
             newShowTickets = await CreateShowContract.allContracts(1)
 
@@ -108,7 +109,7 @@ describe("ERC1155 Ticket Contract", () =>{
 
         })
         it("checks the event was emitted", async () =>{
-            expect(await CreateShowContract.connect(user2).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, "12/25")).to.emit("DegenTickets", "ShowCreated")
+            expect( await CreateShowContract.connect(user2).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 120)).to.emit("DegenBeats", "ShowCreated")
         })
         
         
@@ -120,7 +121,7 @@ describe("ERC1155 Ticket Contract", () =>{
             CreateShowContract = await showContractFactory.deploy()
             await CreateShowContract.deployed()
 
-            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, "november 24")
+            await CreateShowContract.connect(user1).createNewShowTickets(SAMPLEURI, 100, 10, BandAddress.address, VenueAddress.address, 500, 120)
 
             let newShowTix = await CreateShowContract.allShows(1)
             newShowTickets = newShowTix.ticketContract
@@ -220,6 +221,67 @@ describe("ERC1155 Ticket Contract", () =>{
                 
                 // eslint-disable-next-line no-undef
                 expect(await ethers.provider.getBalance(user2.address)).to.equal(user2Balance + BigInt(200))
+            })
+            describe("Ticket Marketplace", async () =>{
+                let MarketplaceContract
+                beforeEach(async () =>{
+                    const marketplaceFactory = await ethers.getContractFactory("TicketMarketplace")
+                    MarketplaceContract = await marketplaceFactory.deploy()
+                    await MarketplaceContract.deployed()
+
+                    await MarketplaceContract.connect(deployer).setBandPercent(10);
+
+                    // console.log(`Marketplace deployed to ${MarketplaceContract.address}`)
+                })
+                it("checks the admin of the marketplace", async () =>{
+                    expect(await MarketplaceContract.admin()).to.equal(deployer.address)
+                })
+                it("checks the list ticket function", async () =>{
+                    await newShowTixContract.connect(user3).setApprovalForAll(MarketplaceContract.address, true)
+                    expect( await MarketplaceContract.connect(user3).listTickets(2, 100, newShowTixContract.address, BandAddress.address )).to.emit("TicketMarketplace", "TicketListed")
+                    expect(await newShowTixContract.balanceOf(MarketplaceContract.address, 1)).to.equal(2)
+
+                })
+                it("checks the buy function", async () =>{
+                    await newShowTixContract.connect(user3).setApprovalForAll(MarketplaceContract.address, true)
+                    await MarketplaceContract.connect(user3).listTickets(2, 100, newShowTixContract.address, BandAddress.address )
+
+                    await MarketplaceContract.connect(user4).buyTickets(2, newShowTixContract.address, user3.address, {value: 200});
+                    expect(await newShowTixContract.balanceOf(user4.address, 1)).to.equal(2)
+                })
+                it("checks the cancel listing function", async () =>{
+                    await newShowTixContract.connect(user3).setApprovalForAll(MarketplaceContract.address, true)
+                    await MarketplaceContract.connect(user3).listTickets(2, 100, newShowTixContract.address, BandAddress.address )
+
+                    expect(await MarketplaceContract.connect(user3).cancelListing(newShowTixContract.address, 2)).to.emit("DegenTickets", "ListingCancelled");
+                    expect(await await newShowTixContract.balanceOf(MarketplaceContract.address, 1)).to.equal(0)
+                })
+                it("checks the resale funds were received by the band", async () =>{
+                    let initialBalance = await ethers.provider.getBalance(BandAddress.address)
+                    // eslint-disable-next-line no-undef
+                    initialBalance = BigInt(initialBalance)
+
+                    await newShowTixContract.connect(user3).setApprovalForAll(MarketplaceContract.address, true)
+                    await MarketplaceContract.connect(user3).listTickets(2, 100, newShowTixContract.address, BandAddress.address )
+                    await MarketplaceContract.connect(user4).buyTickets(2, newShowTixContract.address, user3.address, {value: 200});
+
+
+                    // eslint-disable-next-line no-undef
+                    expect(await ethers.provider.getBalance(BandAddress.address)).to.equal(initialBalance + BigInt(20))
+                })
+                it("checks the owner received their funds", async () =>{
+                    
+                    await newShowTixContract.connect(user3).setApprovalForAll(MarketplaceContract.address, true)
+                    await MarketplaceContract.connect(user3).listTickets(2, 100, newShowTixContract.address, BandAddress.address )
+                    let initialBalance = await ethers.provider.getBalance(user3.address)
+                    // eslint-disable-next-line no-undef
+                    initialBalance = BigInt(initialBalance)
+                    await MarketplaceContract.connect(user4).buyTickets(2, newShowTixContract.address, user3.address, {value: 200});
+
+
+                    // eslint-disable-next-line no-undef
+                    expect(await ethers.provider.getBalance(user3.address)).to.equal(initialBalance + BigInt(180))
+                })
             })
         })
 

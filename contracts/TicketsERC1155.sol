@@ -18,7 +18,7 @@ contract DegenTickets is ERC1155 {
     address public VenueAddress;
 
     uint public bandTicketSalesPercent;
-    string public date;
+
 
     uint public ticketPrice;
 
@@ -116,9 +116,6 @@ contract DegenTickets is ERC1155 {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
-    function setDate(string memory newDate) external onlyAdmin notCancelled {
-        date = newDate;
-    }
 
     function cancelShow() external onlyAdmin{
         showCanceled = true;

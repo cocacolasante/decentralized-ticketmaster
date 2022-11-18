@@ -21,6 +21,7 @@ contract CreateShow{
         TicketEscrow escrowContract;
         bool showCompleted;
         bool showCancelled;
+        uint date;
     }
 
     event ShowCreated(address band, address venue, address ticketContract);
@@ -43,7 +44,7 @@ contract CreateShow{
             address bandAddress,
             address venueAddress,
             uint maxTickets, 
-            string memory date
+            uint date
         ) public {
 
             showCount++;
@@ -56,8 +57,7 @@ contract CreateShow{
 
             newEscrowContract.setTicketContract(address(newShowTickets));
 
-            Show memory newShow = Show(bandAddress, venueAddress, newShowTickets, newEscrowContract, false, false);
-            newShowTickets.setDate(date);
+            Show memory newShow = Show(bandAddress, venueAddress, newShowTickets, newEscrowContract, false, false, date);
 
             // should i keep this contract as admin of new ticket contracts?
 
@@ -73,6 +73,7 @@ contract CreateShow{
 
     function payForShow(uint showNumber) public payable {
         Show storage currentShow = allShows[showNumber];
+        require(block.timestamp >= currentShow.date);
         require(msg.sender == currentShow.venue || msg.sender == admin);
 
         currentShow.escrowContract.releaseFunds();
@@ -98,6 +99,13 @@ contract CreateShow{
         emit ShowCancelled(currentShow.band, currentShow.venue, address(currentShow.ticketContract));
 
     }
+
+    // function rescheduleShow(uint showNumber) public {
+    //     Show memory currentShow = allShows[showNumber];
+    //     require(msg.sender == currentShow.venue || msg.sender == admin);
+
+        
+    // }
 
 
     
