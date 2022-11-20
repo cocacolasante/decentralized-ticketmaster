@@ -300,6 +300,15 @@ describe("ERC1155 Ticket Contract", () =>{
                     await MarketplaceContract.connect(user4).buyTickets(2, newShowTixContract.address, user3.address, {value: 200});
                     expect(await newShowTixContract.balanceOf(user4.address, 1)).to.equal(2)                    
                 })
+                it("checks the update price function", async () =>{
+                    await newShowTixContract.connect(user3).setApprovalForAll(MarketplaceContract.address, true)
+                    await MarketplaceContract.connect(user3).listTickets(2, 100, newShowTixContract.address, BandAddress.address )
+                    
+                    await MarketplaceContract.connect(user3).updatePrice(newShowTixContract.address, 200)
+                    const currentTicketStruct = await MarketplaceContract.ticketsByShow(newShowTixContract.address, user3.address)
+
+                    expect(currentTicketStruct.price ).to.equal(200)
+                })
             })
         })
 

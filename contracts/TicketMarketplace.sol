@@ -91,6 +91,14 @@ contract TicketMarketplace is ERC1155Holder{
     }
 
 
+    function updatePrice(address ticketAddress, uint newPrice) public{
+        TixForSale storage currentShow = ticketsByShow[ticketAddress][msg.sender];
+        require(msg.sender == currentShow.owner, "not ticket owner");
+
+        currentShow.price = newPrice;
+        
+    }
+
 
 
 
