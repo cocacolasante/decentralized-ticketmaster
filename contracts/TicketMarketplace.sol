@@ -99,12 +99,7 @@ contract TicketMarketplace is ERC1155Holder{
         
     }
 
-
-
-
-
-
-
+    
 
     // helper and setter functions
 

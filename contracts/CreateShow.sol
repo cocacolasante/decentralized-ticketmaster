@@ -8,6 +8,8 @@ import "./TicketEscrow.sol";
 contract CreateShow{
     address payable public admin;
 
+    Show public FeaturedShow;
+
     uint public showCount;
 
     mapping(uint=>Show) public allShows;
