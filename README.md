@@ -22,3 +22,5 @@ USERS PROFILE CONTRACT
 Ticket marketplace
     set featured Show struct function
     return featured Show struct function
+    create a list of recent buys to track tickets sold by user
+    
