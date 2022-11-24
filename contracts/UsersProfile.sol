@@ -17,7 +17,17 @@ contract UsersProfile is ERC721URIStorage{
 
     // mapping of profile users to comment sender to comment
     // first address should be of the user who someone is writing a comment to their wall on
-    mapping(address=>mapping(address=>string)) public userComments;
+    mapping(address=>string[]) public userComments;
+
+    // ratings mappings for users has rated bool
+    // total num of ppl who rated
+    // total amount of ratings added up
+    mapping(address=>mapping(address=>bool)) public hasRated;
+    mapping(address=>uint) private totalNumOfRates;
+    mapping(address=> uint) private ratingsAddedUp;
+
+    // mapping of address to address array of 'liked' artist
+    mapping(address=>address[]) public likedList;
 
     mapping(address=>address[]) public showsAttended;
 
@@ -27,10 +37,11 @@ contract UsersProfile is ERC721URIStorage{
         address user;
         string username;
         string status;
-        int userRating;
         uint profileNFT;
         bool verifiedReseller;
+        uint totalRates;
     }
+
 
     modifier onlyAdmin {
         require(msg.sender == admin, "only Admin can call function");
@@ -53,9 +64,9 @@ contract UsersProfile is ERC721URIStorage{
                 msg.sender,
                 "username",
                 "status",
-                0,
                 newTokenId,
-                false
+                false,
+                0
             );
 
             allUser.push(msg.sender);
@@ -96,11 +107,45 @@ contract UsersProfile is ERC721URIStorage{
 
     }
 
-    function rateUser(uint rating) public {
-        
+
+    function rateUser(address userToRate, uint rating) public {
+        require(rating <= 5, "cannot rate over 5");
+        require(hasRated[userToRate][msg.sender] == false, "already rated");
+        hasRated[userToRate][msg.sender] = true;
+
+        totalNumOfRates[userToRate]++;
+        ratingsAddedUp[userToRate] += rating;
+
+
     }
 
 
+
+    function calculateUsersRating(address userToRate) public returns(uint) {
+        uint pplRated = totalNumOfRates[userToRate];
+        uint totalRates = ratingsAddedUp[userToRate];
+
+        uint rating = (totalRates / pplRated);
+        
+        return profileByAddress[userToRate].totalRates = rating;
+
+    }
+
+    function followUser(address addyToFollow) public {
+        require(profileByAddress[msg.sender].user != address(0), "must create profile");
+        likedList[msg.sender].push(addyToFollow);
+
+    }
+
+
+
+
+    function sendComment(address userToComment, string memory comment) public {
+        require(profileByAddress[msg.sender].user != address(0), "must create profile");
+        userComments[userToComment].push(comment);
+    }
+
+    
 
     // admin function
 

@@ -65,7 +65,7 @@ describe("Users Profile nft", () =>{
                 expect(profileStruct1.username).to.equal("username")
                 expect(profileStruct1.status).to.equal("status")
                 expect(profileStruct1.verifiedReseller).to.equal(false)
-                expect(profileStruct1.userRating).to.equal(0)
+
             })
             it("checks the set username function", async () =>{
                 await ProfileContract.connect(user1).setUsername("cocacola")
@@ -82,6 +82,15 @@ describe("Users Profile nft", () =>{
                 await ProfileContract.connect(deployer).VerifyUser(user1.address)
                 profileStruct1 = await ProfileContract.profileByAddress(user1.address)
                 expect(profileStruct1.verifiedReseller).to.equal(true)
+            })
+        })
+        describe("Rating and Comments", () =>{
+            beforeEach(async () =>{
+                await ProfileContract.connect(user2).mint(SAMPLEURI)
+                await ProfileContract.connect(user2).rateUser(user1.address, 4)
+            })
+            it("checks the users rating", async () =>{
+                expect(await ProfileContract.userRating(user1.address, user2.address)).to.equal(4)
             })
         })
     })

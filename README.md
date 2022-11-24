@@ -14,6 +14,11 @@ USERS PROFILE CONTRACT
         comments[]
         Verified Reseller
         profile nft #
+    TEST
+        send comment
+        view comments
+        rating
+        
         
 
 
