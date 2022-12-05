@@ -27,7 +27,7 @@ contract UsersProfile is ERC721URIStorage{
     mapping(address=> uint) private ratingsAddedUp;
 
     // mapping of address to address array of 'liked' artist
-    mapping(address=>address[]) public likedList;
+    mapping(address=>address[]) public followList;
 
     mapping(address=>address[]) public showsAttended;
 
@@ -40,6 +40,7 @@ contract UsersProfile is ERC721URIStorage{
         uint profileNFT;
         bool verifiedReseller;
         uint totalRates;
+        uint likes;
     }
 
 
@@ -66,6 +67,7 @@ contract UsersProfile is ERC721URIStorage{
                 "status",
                 newTokenId,
                 false,
+                0,
                 0
             );
 
@@ -131,9 +133,10 @@ contract UsersProfile is ERC721URIStorage{
 
     }
 
+
     function followUser(address addyToFollow) public {
         require(profileByAddress[msg.sender].user != address(0), "must create profile");
-        likedList[msg.sender].push(addyToFollow);
+        followList[msg.sender].push(addyToFollow);
 
     }
 
@@ -145,7 +148,29 @@ contract UsersProfile is ERC721URIStorage{
         userComments[userToComment].push(comment);
     }
 
+    function likeUser(address userToLike) public returns(uint) {
+        require(profileByAddress[msg.sender].user != address(0), "must create profile");
+
+        return profileByAddress[userToLike].likes++;
+
+    }
+
+    function unlikeUser(address userToUnlike) public returns(uint){
+        require(profileByAddress[msg.sender].user != address(0), "must create profile");
+
+        return profileByAddress[userToUnlike].likes--;
+    }
     
+
+
+
+
+
+
+
+
+
+
 
     // admin function
 

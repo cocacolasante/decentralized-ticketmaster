@@ -90,8 +90,46 @@ describe("Users Profile nft", () =>{
                 await ProfileContract.connect(user2).rateUser(user1.address, 4)
             })
             it("checks the users rating", async () =>{
-                expect(await ProfileContract.userRating(user1.address, user2.address)).to.equal(4)
+                await ProfileContract.calculateUsersRating(user1.address)
+                const profileStruct = await ProfileContract.profileByAddress(user1.address)
+                expect(profileStruct.totalRates).to.equal(4)
             })
+            it("checks the rating average works", async () =>{
+                await ProfileContract.connect(user3).mint(SAMPLEURI)
+                await ProfileContract.connect(user3).rateUser(user1.address, 2)
+                await ProfileContract.calculateUsersRating(user1.address)
+                const profileStruct = await ProfileContract.profileByAddress(user1.address)
+                expect(profileStruct.totalRates).to.equal(3)
+            })
+            it("checks the follow user function", async () =>{
+                await ProfileContract.connect(user2).followUser(user1.address)
+                expect(await ProfileContract.followList(user2.address, 0)).to.equal(user1.address)
+            })
+            it("checks the send comment function", async () =>{
+                await ProfileContract.connect(user2).sendComment(user1.address, "Hello there")
+                expect(await ProfileContract.userComments(user1.address, 0)).to.equal("Hello there")
+                await ProfileContract.connect(user2).sendComment(user1.address, "General Kenobi")
+                expect(await ProfileContract.userComments(user1.address, 1)).to.equal("General Kenobi")
+            })
+            it("checks the failcase 'needs a profile'", async () =>{
+                await expect(ProfileContract.connect(user3).sendComment(user1.address, "Youre a bold")).to.be.revertedWith("must create profile")
+
+            })
+            it("checks the like function", async () =>{
+                await ProfileContract.connect(user2).likeUser(user1.address)
+                let profileStruct = await ProfileContract.profileByAddress(user1.address)
+                expect(profileStruct.likes).to.equal(1)
+            })
+            it("checks the unlike function", async () =>{
+                await ProfileContract.connect(user2).likeUser(user1.address)
+                let profileStruct = await ProfileContract.profileByAddress(user1.address)
+                expect(profileStruct.likes).to.equal(1)
+                await ProfileContract.connect(user2).unlikeUser(user1.address)
+                profileStruct = await ProfileContract.profileByAddress(user1.address)
+                expect(profileStruct.likes).to.equal(0)
+            })
+
+
         })
     })
 })
