@@ -160,10 +160,17 @@ contract UsersProfile is ERC721URIStorage{
 
         return profileByAddress[userToUnlike].likes--;
     }
+
     
 
 
+    // social function
 
+    function addToShowsAttended(address showTixAddy) public {
+        require(profileByAddress[msg.sender].user != address(0), "must create profile");
+
+        showsAttended[msg.sender].push(showTixAddy);
+    }
 
 
 

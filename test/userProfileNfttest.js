@@ -128,6 +128,7 @@ describe("Users Profile nft", () =>{
                 profileStruct = await ProfileContract.profileByAddress(user1.address)
                 expect(profileStruct.likes).to.equal(0)
             })
+            
 
 
         })
